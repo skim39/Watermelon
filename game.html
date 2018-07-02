@@ -33,34 +33,46 @@
 	// watermelon owner movement
 	var ownerX = canvas.width/2
 	var ownerY = 100;
-	var isTurned = true;
-	var maxTime = 5000;
-	var minTime = 3000;
-	var turnVelocity = 500;
-	var returnVelocity = 2000;
+	var maxTime = 2000;
+	var minTime = 1000;
+	var finalTurnInterval = 500;
+	var returnInterval = 2000;
+	var isTurned = false;
 
 	// Owner movement
-	function drawOwner() {
+	function drawOwner(color) {
+		ctx.clearRect(ownerX-ballRadius, ownerY-ballRadius, ballRadius*2, ballRadius*2);
 		ctx.beginPath();
 	    ctx.arc(ownerX, ownerY, ballRadius, 0, Math.PI*2);
-	    ctx.fillStyle = "#00ff00";
+	    ctx.fillStyle = color;
 	    ctx.fill();
 	    ctx.closePath();
 	}
 
-	/*
-	function ownerInitiateTurn() {
-		ctx.fillStyle = "##ffff00";
-	    ctx.fill();
-	    setTimeout(ownerFullTurn, turnVelocity);
+	function ownerInitialize() {
+		drawOwner("#00ff00");
+		isTurned = false;
+	    var initialTurnInterval = Math.floor(Math.random() * (maxTime - minTime) + minTime);
+	    setTimeout(ownerInitiateTurn, initialTurnInterval);
 	}
 
-	function ownerFullTurn(){
-		ctx.fillStyle = "##ffff00";
-	    ctx.fill();
+	function ownerInitiateTurn() {
+		drawOwner("#ffff00");
+	    setTimeout(ownerFullTurn, finalTurnInterval);
 	}
-	*/
+
+	function ownerFullTurn() {
+		drawOwner("#ff0000");
+		console.log("is red");
+		isTurned = true;
+		checkGameOver(returnInterval);
+
+	}
+
+	// User Movement
+
 	function drawBall() {
+		ctx.clearRect(x-ballRadius, y-ballRadius, ballRadius*2, ballRadius*2);
 	    ctx.beginPath();
 	    ctx.arc(x, y, ballRadius, 0, Math.PI*2);
 	    ctx.fillStyle = "#0095DD";
@@ -68,19 +80,19 @@
 	    ctx.closePath();
 	}
 
-	function initiateBall(){
+	function initiateBall() {
 		drawBall();
 	}
 
 	function moveUp() {
-		if(leftHide == false && rightHide == false){
-		    ctx.clearRect(0, 0, canvas.width, canvas.height);
+		if (leftHide == false && rightHide == false) {
+		    ctx.clearRect(x-ballRadius, y-ballRadius, ballRadius*2, ballRadius*2);
 		    y += dy;
 
-		    if(y + dy < ballRadius) {
+		    if (y + dy < ballRadius) {
 	    		dy = -dy;
-			} else if(y < reach) {
-	        	alert("수박서리~!");
+			} else if (y < reach) {
+	        	alert("수박서리~!"); 
 	       		document.location.reload();
 	    	}
 	    	drawBall();
@@ -88,64 +100,83 @@
 	}
 
 	function moveLeftInitial() {
-		console.log("goes here 1");
-		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		ctx.clearRect(x-ballRadius, y-ballRadius, ballRadius*2, ballRadius*2);
 		leftHide = true;
 		x = x - dx
 		drawBall();
 	}
 
 	function moveRightInitial() {
-		console.log("goes here 2");
-		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		ctx.clearRect(x - ballRadius, y - ballRadius, ballRadius * 2, ballRadius * 2);
 		rightHide = true;
 		x = x + dx;
 		drawBall();
 	}
 
-	function moveBack(){
-		ctx.clearRect(0, 0, canvas.width, canvas.height);
+	function moveBack() {
+		ctx.clearRect(x - ballRadius, y - ballRadius, ballRadius * 2, ballRadius * 2);
 		
-		if(rightHide == true){
+		if (rightHide == true) {
+			leftHide = false;
 			rightHide = false;
 		}
 
-		if(leftHide == true){
+		if (leftHide == true) {
 			leftHide = false;
+			rightHide = false;
 		}
 		
-		x = canvas.width/2;
+		x = canvas.width / 2;
 		drawBall();
 	}
 
+	function checkGameOver(tempTimer) {
+
+		var timer = tempTimer;
+		console.log(timer);
+
+		if (!leftHide && !rightHide){
+			alert("game over!");
+	    	document.location.reload(); 
+		}
+
+		if(timer > 0) {
+			// 100 milisecond is considered "instantaneous"
+			timer = timer - 100;
+			setTimeout(function() {
+				checkGameOver(timer); 
+			}, 100);
+		}
+		else 
+			ownerInitialize();
+	}
+
 	// Game Start
-
 	initiateBall();
-	drawOwner();
+	ownerInitialize();
 
+	// user input for movement
 	document.addEventListener('keydown', function(event) {
-	    if(event.key == 'ArrowDown'){
-	    	console.log("goes arrow down");
+
+	    if (event.key == 'ArrowDown') {
 	    	moveUp();
 	    }
-	    if(event.key == 'ArrowLeft'){
+
+	    else if (event.key == 'ArrowLeft') {
 	    	
-	    	if(leftHide == false && rightHide == false){
-	    		console.log("initial left move");
+	    	if (leftHide == false && rightHide == false) {
 		    	moveLeftInitial();
 	    	}
-		    else if(rightHide == true){
-		    	console.log("move back from right");
+		    else if (rightHide == true) {
 		    	moveBack();
 		    }
 		}
-		if(event.key == 'ArrowRight'){
-		    if(rightHide == false && leftHide == false){
-		    	console.log("initial right move");
+
+		else if (event.key == 'ArrowRight') {
+		    if (rightHide == false && leftHide == false) {
 		    	moveRightInitial();
 		    }
-		    else if(leftHide == true){
-		    	console.log("move back from left");
+		    else if (leftHide == true) {
 		    	moveBack();
 		    }
 		}
