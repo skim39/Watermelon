@@ -17,33 +17,34 @@
 	var canvas = document.getElementById("myCanvas");
 	var ctx = canvas.getContext("2d");
 
-	// player movement location
-	var x = canvas.width/2;
+	// ball (player) movement and location
+	var x = canvas.width / 2;
 	var y = canvas.height-30;
 	var ballRadius = 10;
 	var dx = 30;
 	var dy = -10;
-	var reach = canvas.height/5;
+	var reach = canvas.height / 5;
 
-	// player movement boolean
-	var leftHide = false;
+	// ball (player) movement boolean
+	var leftHide = false;	
 	var rightHide = false;
 	var reached = false;
 
 	// watermelon owner movement
-	var ownerX = canvas.width/2
+	var ownerX = canvas.width / 2
 	var ownerY = 100;
 	var maxTime = 2000;
 	var minTime = 1000;
 	var finalTurnInterval = 500;
 	var returnInterval = 2000;
-	var isTurned = false;
 
 	// Owner movement
+
+	// helper function for changing the color for the owner: clear and redraw in new color
 	function drawOwner(color) {
-		ctx.clearRect(ownerX-ballRadius, ownerY-ballRadius, ballRadius*2, ballRadius*2);
+		ctx.clearRect(ownerX - ballRadius, ownerY - ballRadius, ballRadius * 2, ballRadius * 2);
 		ctx.beginPath();
-	    ctx.arc(ownerX, ownerY, ballRadius, 0, Math.PI*2);
+	    ctx.arc(ownerX, ownerY, ballRadius, 0, Math.PI * 2);
 	    ctx.fillStyle = color;
 	    ctx.fill();
 	    ctx.closePath();
@@ -51,40 +52,41 @@
 
 	function ownerInitialize() {
 		drawOwner("#00ff00");
-		isTurned = false;
 	    var initialTurnInterval = Math.floor(Math.random() * (maxTime - minTime) + minTime);
-	    setTimeout(ownerInitiateTurn, initialTurnInterval);
+	    setTimeout(ownerStartTurn, initialTurnInterval);
 	}
 
-	function ownerInitiateTurn() {
+	function ownerStartTurn() {
 		drawOwner("#ffff00");
-	    setTimeout(ownerFullTurn, finalTurnInterval);
+	    setTimeout(ownerFinishTurn, finalTurnInterval);
 	}
 
-	function ownerFullTurn() {
+	function ownerFinishTurn() {
 		drawOwner("#ff0000");
 		console.log("is red");
-		isTurned = true;
 		checkGameOver(returnInterval);
 
 	}
 
-	// User Movement
+	// Ball (User) Movement
 
+	// helper function for moving the ball: clear and redraw in new location
 	function drawBall() {
-		ctx.clearRect(x-ballRadius, y-ballRadius, ballRadius*2, ballRadius*2);
+		ctx.clearRect(x - ballRadius, y - ballRadius, ballRadius * 2, ballRadius * 2);
 	    ctx.beginPath();
-	    ctx.arc(x, y, ballRadius, 0, Math.PI*2);
+	    ctx.arc(x, y, ballRadius, 0, Math.PI * 2);
 	    ctx.fillStyle = "#0095DD";
 	    ctx.fill();
 	    ctx.closePath();
 	}
 
+	// create ball for the first time
 	function initiateBall() {
 		drawBall();
 	}
 
-	function moveUp() {
+	// move the ball upward of down pressed
+	function ballMoveUp() {
 		if (leftHide == false && rightHide == false) {
 		    ctx.clearRect(x-ballRadius, y-ballRadius, ballRadius*2, ballRadius*2);
 		    y += dy;
@@ -95,25 +97,31 @@
 	        	alert("수박서리~!"); 
 	       		document.location.reload();
 	    	}
+	    	
 	    	drawBall();
 	    }
 	}
 
-	function moveLeftInitial() {
+	// move the ball left for the first time
+	// leftHide used for preventing multiple left moves 
+	function ballMoveLeft() {
 		ctx.clearRect(x-ballRadius, y-ballRadius, ballRadius*2, ballRadius*2);
 		leftHide = true;
 		x = x - dx
 		drawBall();
 	}
 
-	function moveRightInitial() {
+	// move the ball left for the first time
+	// rightHide used for preventing multiple left moves 
+	function ballMoveRight() {
 		ctx.clearRect(x - ballRadius, y - ballRadius, ballRadius * 2, ballRadius * 2);
 		rightHide = true;
 		x = x + dx;
 		drawBall();
 	}
 
-	function moveBack() {
+	// move the ball back to center
+	function ballMoveCenter() {
 		ctx.clearRect(x - ballRadius, y - ballRadius, ballRadius * 2, ballRadius * 2);
 		
 		if (rightHide == true) {
@@ -130,10 +138,12 @@
 		drawBall();
 	}
 
+	//Game play: 
+	//	design to fix: we have ownerInitialize in this function... 
+	//  Maybe move this somewhere else?
 	function checkGameOver(tempTimer) {
 
 		var timer = tempTimer;
-		console.log(timer);
 
 		if (!leftHide && !rightHide){
 			alert("game over!");
@@ -159,25 +169,25 @@
 	document.addEventListener('keydown', function(event) {
 
 	    if (event.key == 'ArrowDown') {
-	    	moveUp();
+	    	ballMoveUp();
 	    }
 
 	    else if (event.key == 'ArrowLeft') {
 	    	
 	    	if (leftHide == false && rightHide == false) {
-		    	moveLeftInitial();
+		    	ballMoveLeft();
 	    	}
 		    else if (rightHide == true) {
-		    	moveBack();
+		    	ballMoveCenter();
 		    }
 		}
 
 		else if (event.key == 'ArrowRight') {
 		    if (rightHide == false && leftHide == false) {
-		    	moveRightInitial();
+		    	ballMoveRight();
 		    }
 		    else if (leftHide == true) {
-		    	moveBack();
+		    	ballMoveCenter();
 		    }
 		}
 	});
