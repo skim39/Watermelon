@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Gamedev Canvas Workshop</title>
+    <style>
+    	* { padding: 0; margin: 0; }
+    	canvas { background: #eee; display: block; margin: 0 auto; }
+    </style>
+</head>
+<body>
+
+<canvas id="myCanvas" width="300" height="500"></canvas>
+
+<script>
+	// canvas info
+	var canvas = document.getElementById("myCanvas");
+	var ctx = canvas.getContext("2d");
+
+	// player movement location
+	var x = canvas.width/2;
+	var y = canvas.height-30;
+	var ballRadius = 10;
+	var dx = 30;
+	var dy = -10;
+	var reach = canvas.height/5;
+
+	// player movement boolean
+	var leftHide = false;
+	var rightHide = false;
+	var reached = false;
+
+	// watermelon owner movement
+	var ownerX = canvas.width/2
+	var ownerY = 100;
+	var isTurned = true;
+	var maxTime = 5000;
+	var minTime = 3000;
+	var turnVelocity = 500;
+	var returnVelocity = 2000;
+
+	// Owner movement
+	function drawOwner() {
+		ctx.beginPath();
+	    ctx.arc(ownerX, ownerY, ballRadius, 0, Math.PI*2);
+	    ctx.fillStyle = "#00ff00";
+	    ctx.fill();
+	    ctx.closePath();
+	}
+
+	/*
+	function ownerInitiateTurn() {
+		ctx.fillStyle = "##ffff00";
+	    ctx.fill();
+	    setTimeout(ownerFullTurn, turnVelocity);
+	}
+
+	function ownerFullTurn(){
+		ctx.fillStyle = "##ffff00";
+	    ctx.fill();
+	}
+	*/
+	function drawBall() {
+	    ctx.beginPath();
+	    ctx.arc(x, y, ballRadius, 0, Math.PI*2);
+	    ctx.fillStyle = "#0095DD";
+	    ctx.fill();
+	    ctx.closePath();
+	}
+
+	function initiateBall(){
+		drawBall();
+	}
+
+	function moveUp() {
+		if(leftHide == false && rightHide == false){
+		    ctx.clearRect(0, 0, canvas.width, canvas.height);
+		    y += dy;
+
+		    if(y + dy < ballRadius) {
+	    		dy = -dy;
+			} else if(y < reach) {
+	        	alert("수박서리~!");
+	       		document.location.reload();
+	    	}
+	    	drawBall();
+	    }
+	}
+
+	function moveLeftInitial() {
+		console.log("goes here 1");
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		leftHide = true;
+		x = x - dx
+		drawBall();
+	}
+
+	function moveRightInitial() {
+		console.log("goes here 2");
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		rightHide = true;
+		x = x + dx;
+		drawBall();
+	}
+
+	function moveBack(){
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		
+		if(rightHide == true){
+			rightHide = false;
+		}
+
+		if(leftHide == true){
+			leftHide = false;
+		}
+		
+		x = canvas.width/2;
+		drawBall();
+	}
+
+	// Game Start
+
+	initiateBall();
+	drawOwner();
+
+	document.addEventListener('keydown', function(event) {
+	    if(event.key == 'ArrowDown'){
+	    	console.log("goes arrow down");
+	    	moveUp();
+	    }
+	    if(event.key == 'ArrowLeft'){
+	    	
+	    	if(leftHide == false && rightHide == false){
+	    		console.log("initial left move");
+		    	moveLeftInitial();
+	    	}
+		    else if(rightHide == true){
+		    	console.log("move back from right");
+		    	moveBack();
+		    }
+		}
+		if(event.key == 'ArrowRight'){
+		    if(rightHide == false && leftHide == false){
+		    	console.log("initial right move");
+		    	moveRightInitial();
+		    }
+		    else if(leftHide == true){
+		    	console.log("move back from left");
+		    	moveBack();
+		    }
+		}
+	});
+
+</script>
+
+</body>
+</html>
